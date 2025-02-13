@@ -24,9 +24,11 @@ form.addEventListener('submit', async (event) => {
 
   try {
     const images = await fetchImages(searchQuery);
+    
+    // Затримка 10 секунд для анімації лоадера
+    await new Promise(resolve => setTimeout(resolve, 10000)); // Затримка в 10 секунду для анімації лоадера, щоб не було занадто довго.
 
     renderImages(images); // Рендеримо зображення після отримання даних
-
   } catch (error) {
     iziToast.error({
       message: 'Something went wrong, please try again later.',

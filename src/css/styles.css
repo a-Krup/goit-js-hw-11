@@ -99,7 +99,7 @@ body {
 }
 
 .loader {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   font: 400 16px / 1.5 'Montserrat', sans-serif;
