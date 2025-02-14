@@ -1,13 +1,16 @@
-// main.js
 import { fetchImages } from './js/pixabay-api';
 import { renderImages, toggleLoadingIndicator } from './js/render-functions';
+
+import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const form = document.querySelector('.form');
-form.addEventListener('submit', async (event) => {
-  event.preventDefault(); // Запобігаємо перезавантаженню сторінки
+const gallery = document.querySelector('.gallery');
 
-  const searchQuery = document.querySelector('.form-input').value.trim(); // Отримуємо пошуковий запит
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const searchQuery = document.querySelector('.form-input').value.trim();
 
   if (!searchQuery) {
     iziToast.error({
@@ -15,29 +18,43 @@ form.addEventListener('submit', async (event) => {
       position: 'topRight',
       timeout: 5000,
       transitionIn: 'fadeIn',
-      transitionOut: 'fadeOut'
+      transitionOut: 'fadeOut',
     });
-    return; // Якщо поле пошуку порожнє, виводимо попередження
+    return;
   }
 
-  toggleLoadingIndicator(true); // Показуємо індикатор завантаження перед запитом
+  gallery.innerHTML = '';
+  toggleLoadingIndicator(true);
 
   try {
     const images = await fetchImages(searchQuery);
-    
-    // Затримка 10 секунд для анімації лоадера
-    await new Promise(resolve => setTimeout(resolve, 10000)); // Затримка в 10 секунду для анімації лоадера, щоб не було занадто довго.
 
-    renderImages(images); // Рендеримо зображення після отримання даних
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    renderImages(images);
+
+    const lightbox = new SimpleLightbox('.gallery a');
+    lightbox.refresh();
+
+    const nextButton = document.querySelector('.next-btn');
+    const prevButton = document.querySelector('.prev-btn');
+
+    nextButton.addEventListener('click', () => {
+      lightbox.next();
+    });
+
+    prevButton.addEventListener('click', () => {
+      lightbox.prev();
+    });
   } catch (error) {
     iziToast.error({
       message: 'Something went wrong, please try again later.',
       position: 'topRight',
       timeout: 5000,
       transitionIn: 'fadeIn',
-      transitionOut: 'fadeOut'
+      transitionOut: 'fadeOut',
     });
   } finally {
-    toggleLoadingIndicator(false); // Ховаємо індикатор завантаження після завершення запиту
+    toggleLoadingIndicator(false);
   }
 });

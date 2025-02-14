@@ -1,21 +1,18 @@
-// render-functions.js
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-// Функція для показу/приховування лоадера
-export const toggleLoadingIndicator = (isLoading) => {
+export const toggleLoadingIndicator = isLoading => {
   const loader = document.querySelector('.loader');
   if (isLoading) {
-    loader.classList.remove('hidden'); // Показуємо індикатор
+    loader.classList.remove('hidden');
   } else {
-    loader.classList.add('hidden'); // Сховуємо індикатор
+    loader.classList.add('hidden');
   }
 };
 
-// Функція для відображення карток зображень у галереї
-export const renderImages = (images) => {
+export const renderImages = images => {
   const gallery = document.querySelector('.gallery');
-  gallery.innerHTML = ''; // Очищаємо галерею перед новим пошуком
+  gallery.innerHTML = '';
 
   if (images.length === 0) {
     iziToast.error({
@@ -23,14 +20,23 @@ export const renderImages = (images) => {
       position: 'topRight',
       timeout: 5000,
       transitionIn: 'fadeIn',
-      transitionOut: 'fadeOut'
+      transitionOut: 'fadeOut',
     });
     return;
   }
 
   const markup = images
-    .map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
-      return `
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => {
+        return `
         <li>
           <a href="${largeImageURL}" class="gallery-item">
             <img src="${webformatURL}" alt="${tags}" />
@@ -55,7 +61,8 @@ export const renderImages = (images) => {
           </div>
         </li>
       `;
-    })
+      }
+    )
     .join('');
 
   gallery.insertAdjacentHTML('beforeend', markup);
