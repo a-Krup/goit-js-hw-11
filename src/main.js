@@ -3,58 +3,85 @@ import { renderImages, toggleLoadingIndicator } from './js/render-functions';
 
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
-const form = document.querySelector('.form');
-const gallery = document.querySelector('.gallery');
+document.addEventListener('DOMContentLoaded', () => {
+  const gallery = document.querySelector('.gallery');
+  const form = document.querySelector('.form');
+  const searchInput = document.querySelector('.form-input');
 
-form.addEventListener('submit', async event => {
-  event.preventDefault();
+  if (!form || !searchInput) return;
 
-  const searchQuery = document.querySelector('.form-input').value.trim();
+  form.addEventListener(
+    'submit',
+    async event => {
+      event.preventDefault();
 
-  if (!searchQuery) {
-    iziToast.error({
-      message: 'Please enter a search term.',
-      position: 'topRight',
-      timeout: 5000,
-      transitionIn: 'fadeIn',
-      transitionOut: 'fadeOut',
-    });
-    return;
-  }
+      const searchQuery = searchInput.value.trim();
 
-  gallery.innerHTML = '';
-  toggleLoadingIndicator(true);
+      if (!searchQuery) {
+        iziToast.error({
+          message: 'Sorry, no images match your search. Please try again!',
+          position: 'topRight',
+          timeout: 2000,
+          transitionIn: 'fadeIn',
+          transitionOut: 'fadeOut',
+        });
+        return;
+      }
 
-  try {
-    const images = await fetchImages(searchQuery);
+      gallery.innerHTML = '';
+      toggleLoadingIndicator(true);
 
-    await new Promise(resolve => setTimeout(resolve, 2000));
+      try {
+        const images = await fetchImages(searchQuery);
 
-    renderImages(images);
+        if (images.length === 0) {
+          iziToast.error({
+            message: 'Sorry, no images match your search. Please try again!',
+            position: 'topRight',
+            timeout: 2000,
+            transitionIn: 'fadeIn',
+            transitionOut: 'fadeOut',
+          });
+          return;
+        }
 
-    const lightbox = new SimpleLightbox('.gallery a');
-    lightbox.refresh();
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-    const nextButton = document.querySelector('.next-btn');
-    const prevButton = document.querySelector('.prev-btn');
+        renderImages(images);
 
-    nextButton.addEventListener('click', () => {
-      lightbox.next();
-    });
+        const lightbox = new SimpleLightbox('.gallery a');
+        lightbox.refresh();
 
-    prevButton.addEventListener('click', () => {
-      lightbox.prev();
-    });
-  } catch (error) {
-    iziToast.error({
-      message: 'Something went wrong, please try again later.',
-      position: 'topRight',
-      timeout: 5000,
-      transitionIn: 'fadeIn',
-      transitionOut: 'fadeOut',
-    });
-  } finally {
-    toggleLoadingIndicator(false);
-  }
+        const nextButton = document.querySelector('.next-btn');
+        const prevButton = document.querySelector('.prev-btn');
+
+        if (nextButton) {
+          nextButton.addEventListener('click', () => {
+            lightbox.next();
+          });
+        }
+
+        if (prevButton) {
+          prevButton.addEventListener('click', () => {
+            lightbox.prev();
+          });
+        }
+      } catch (error) {
+        iziToast.error({
+          message: 'Something went wrong, please try again later.',
+          position: 'topRight',
+          timeout: 2000,
+          transitionIn: 'fadeIn',
+          transitionOut: 'fadeOut',
+        });
+        console.error('Error fetching images:', error);
+      } finally {
+        toggleLoadingIndicator(false);
+      }
+    },
+    { passive: false }
+  );
 });
